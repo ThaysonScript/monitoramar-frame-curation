@@ -1,0 +1,29 @@
+sampling:
+  target_fps: 2.0
+redundancy:
+  method: phash
+  threshold: 8
+embedding:
+  enabled: true
+  backend: dinov2
+  model: dinov2_vits14
+  batch_size: 16
+  device: auto
+clustering:
+  enabled: true
+  algorithm: kmeans
+  n_clusters: 50
+  random_state: 42
+task_aware:
+  enabled: true
+  criticality:
+    people_count_change: 2.0
+    motion_change: 1.0
+    novelty: 1.0
+  min_event_score: 0.35
+selection:
+  representatives_per_cluster: 1
+  always_keep_events: true
+  max_frames_per_video: 1000
+output:
+  jpeg_quality: 92
