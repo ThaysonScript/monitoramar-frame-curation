@@ -1,0 +1,10 @@
+# Instalação completa: núcleo + embeddings DINOv2 + contagem de pessoas YOLOv8.
+#
+# Instalação:
+#   pip install -r requirements-full.txt
+#
+# Equivalente a: pip install -e ".[full]"
+
+-r requirements.txt
+-r requirements-dinov2.txt
+-r requirements-yolo.txt

@@ -1,0 +1,11 @@
+# Habilita o sinal task-aware de contagem de pessoas (YOLOv8, apenas
+# inferência). Sem isso instalado, `task_aware.people_counting.enabled: true`
+# no config é ignorado com um aviso, e people_count fica None.
+#
+# Instalação:
+#   pip install -r requirements.txt -r requirements-yolo.txt
+#
+# Equivalente a: pip install -e ".[yolo]"
+
+ultralytics>=8.1
+torch>=2.2

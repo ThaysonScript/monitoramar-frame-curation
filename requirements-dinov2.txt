@@ -1,0 +1,11 @@
+# Habilita embeddings semânticos reais (DINOv2) no lugar do fallback de
+# cor/textura. Sem isso instalado, o pipeline continua funcionando, só que
+# com embeddings mais fracos.
+#
+# Instalação:
+#   pip install -r requirements.txt -r requirements-dinov2.txt
+#
+# Equivalente a: pip install -e ".[dinov2]"
+
+torch>=2.2
+torchvision>=0.17

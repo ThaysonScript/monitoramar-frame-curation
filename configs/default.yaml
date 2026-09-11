@@ -1,8 +1,9 @@
 sampling:
   target_fps: 2.0
 redundancy:
+  enabled: true
   method: phash
-  threshold: 8
+  threshold: 4
 embedding:
   enabled: true
   backend: dinov2
@@ -18,12 +19,20 @@ task_aware:
   enabled: true
   criticality:
     people_count_change: 2.0
-    motion_change: 1.0
     novelty: 1.0
   min_event_score: 0.35
+  people_counting:
+    enabled: true
+    backend: yolov8
+    model: yolov8n.pt
+    device: auto
+    conf: 0.25
+    person_class: 0
 selection:
   representatives_per_cluster: 1
   always_keep_events: true
   max_frames_per_video: 1000
 output:
   jpeg_quality: 92
+metrics:
+  annotation_minutes_per_frame: 2.0

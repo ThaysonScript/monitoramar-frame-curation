@@ -6,3 +6,7 @@ __pycache__/
 data/raw/*
 data/curated/*
 .env
+*.jpg*
+*.mov
+*.json
+*.csv

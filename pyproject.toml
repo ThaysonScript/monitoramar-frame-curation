@@ -12,10 +12,14 @@ dependencies = ["opencv-python>=4.9","numpy>=1.26","pandas>=2.2","scikit-learn>=
 
 [project.optional-dependencies]
 dinov2 = ["torch>=2.2","torchvision>=0.17"]
+yolo = ["ultralytics>=8.1","torch>=2.2"]
+full = ["torch>=2.2","torchvision>=0.17","ultralytics>=8.1"]
 dev = ["pytest>=8.0","ruff>=0.5"]
 
 [project.scripts]
 monitoramar-curate = "monitoramar_curator.cli:main"
+monitoramar-metrics = "monitoramar_curator.cli_metrics:main"
+monitoramar-compare = "monitoramar_curator.cli_compare:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
