@@ -1,4 +1,5 @@
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
+
 
 @dataclass
 class FrameRecord:
@@ -11,6 +12,9 @@ class FrameRecord:
     embedding_novelty: float = 0.0
     cluster_id: int | None = None
     event_score: float = 0.0
+    event_novelty_component: float = 0.0
+    event_people_change_component: float = 0.0
+    people_count_change: int | None = None
     people_count: int | None = None
     selection_reason: str = ""
 

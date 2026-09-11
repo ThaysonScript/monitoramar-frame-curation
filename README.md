@@ -134,6 +134,16 @@ vídeos — cada um é apenas uma combinação de flags `enabled` do config:
 Gera uma subpasta por método e uma tabela `comparison.csv` na raiz de saída, com as
 mesmas métricas do item 2 lado a lado.
 
+### 4. Revisão visual dos frames selecionados
+
+```bash
+monitoramar-review --dataset data/curated
+```
+
+Gera `data/curated/review/index.html`, uma página local com miniaturas dos frames e
+filtros por cluster, motivo de seleção, score de evento e número de pessoas. Abra o
+arquivo no navegador para revisar a curadoria antes da anotação humana.
+
 ## Task-aware: contagem de pessoas via YOLOv8
 
 Para ativar o sinal que diferencia a curadoria de um dedup genérico (seção 7 da

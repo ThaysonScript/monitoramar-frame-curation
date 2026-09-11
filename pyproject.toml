@@ -20,6 +20,7 @@ dev = ["pytest>=8.0","ruff>=0.5"]
 monitoramar-curate = "monitoramar_curator.cli:main"
 monitoramar-metrics = "monitoramar_curator.cli_metrics:main"
 monitoramar-compare = "monitoramar_curator.cli_compare:main"
+monitoramar-review = "monitoramar_curator.cli_review:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
