@@ -144,6 +144,33 @@ Gera `data/curated/review/index.html`, uma página local com miniaturas dos fram
 filtros por cluster, motivo de seleção, score de evento e número de pessoas. Abra o
 arquivo no navegador para revisar a curadoria antes da anotação humana.
 
+#### Como usar
+
+1. Execute a curadoria normalmente. A visualização depende do arquivo
+   `data/curated/manifests/selections.csv` gerado nessa etapa.
+
+   ```bash
+   monitoramar-curate --input data/raw --output data/curated --config configs/default.yaml
+   ```
+
+2. Gere ou atualize a página de revisão:
+
+   ```bash
+   monitoramar-review --dataset data/curated
+   ```
+
+3. Abra `data/curated/review/index.html` no navegador. No Windows/PowerShell, também
+   é possível executar:
+
+   ```powershell
+   Start-Process .\data\curated\review\index.html
+   ```
+
+A página não precisa de servidor nem de extensão: funciona localmente. Após uma nova
+curadoria, execute novamente `monitoramar-review` para atualizar as miniaturas e os
+motivos. Cada cartão usa etiquetas curtas, como `Mudança visual`, `Representa o grupo`,
+`Cena incomum` ou `Mudança de pessoas (+N)`.
+
 ## Task-aware: contagem de pessoas via YOLOv8
 
 Para ativar o sinal que diferencia a curadoria de um dedup genérico (seção 7 da
