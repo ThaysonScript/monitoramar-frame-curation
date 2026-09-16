@@ -12,7 +12,7 @@ def test_build_review_creates_local_page(tmp_path):
     (frames / "frame.jpg").write_bytes(b"placeholder")
     pd.DataFrame([{
         "timestamp_seconds": 3.5, "output_path": str(frames / "frame.jpg"), "cluster_id": 2,
-        "event_score": 0.7, "people_count": 4, "selection_reason": "cluster_representative;critical_event",
+        "selection_reason": "cluster_representative",
         "frame_index": 105, "video_id": "video-a",
     }]).to_csv(manifest_dir / "selections.csv", index=False)
 
@@ -23,5 +23,4 @@ def test_build_review_creates_local_page(tmp_path):
     assert result["review"] == str(page)
     text = page.read_text(encoding="utf-8")
     assert "../frames/frame.jpg" in text.replace("\\", "/")
-    assert "critical_event" in text
-    assert "Mudança visual" in text
+    assert "Representa o grupo" in text

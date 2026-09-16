@@ -1,4 +1,4 @@
-# Instalação completa: núcleo + embeddings DINOv2 + contagem de pessoas YOLOv8.
+# Instalação completa: núcleo + embeddings DINOv2.
 #
 # Instalação:
 #   pip install -r requirements-full.txt
@@ -7,4 +7,3 @@
 
 -r requirements.txt
 -r requirements-dinov2.txt
--r requirements-yolo.txt

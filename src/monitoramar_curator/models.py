@@ -11,12 +11,15 @@ class FrameRecord:
     redundancy_score: float = 0.0
     embedding_novelty: float = 0.0
     cluster_id: int | None = None
-    event_score: float = 0.0
-    event_novelty_component: float = 0.0
-    event_people_change_component: float = 0.0
-    people_count_change: int | None = None
-    people_count: int | None = None
     selection_reason: str = ""
 
     def to_dict(self):
         return asdict(self)
+
+
+def add_reason(record, reason):
+    """Inclui um motivo de seleção sem duplicá-lo no manifesto."""
+    parts = [item for item in record.selection_reason.split(";") if item]
+    if reason not in parts:
+        parts.append(reason)
+    record.selection_reason = ";".join(parts)

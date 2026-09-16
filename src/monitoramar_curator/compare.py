@@ -1,13 +1,12 @@
 """Comparação entre as estratégias de curadoria descritas na proposta:
 
-A. Amostragem fixa       -- sem redundância, sem clustering, sem task-aware.
-B. Similaridade temporal -- redundância ativa, sem clustering, sem task-aware.
-C. Diversidade visual    -- redundância + clustering, sem task-aware.
-D. Task-aware (proposto) -- redundância + clustering + task-aware (completo).
+A. Amostragem fixa       -- sem redundância e sem clustering.
+B. Similaridade temporal -- redundância ativa, sem clustering.
+C. Diversidade visual    -- redundância + embeddings + clustering.
 
 Cada método é apenas uma combinação de flags de configuração; o pipeline
 (`pipeline.run`) já sabe respeitar cada uma delas. Este módulo só monta
-os quatro configs, roda o pipeline uma vez por método e agrega as
+os três configs, roda o pipeline uma vez por método e agrega as
 métricas de dataset (sem treino) definidas em `metrics.py`.
 """
 import copy
@@ -24,25 +23,16 @@ METHOD_OVERRIDES = {
         "redundancy": {"enabled": False},
         "embedding": {"enabled": False},
         "clustering": {"enabled": False},
-        "task_aware": {"enabled": False},
     },
     "B_temporal_similarity": {
         "redundancy": {"enabled": True},
         "embedding": {"enabled": False},
         "clustering": {"enabled": False},
-        "task_aware": {"enabled": False},
     },
     "C_visual_diversity": {
         "redundancy": {"enabled": True},
         "embedding": {"enabled": True},
         "clustering": {"enabled": True},
-        "task_aware": {"enabled": False},
-    },
-    "D_task_aware": {
-        "redundancy": {"enabled": True},
-        "embedding": {"enabled": True},
-        "clustering": {"enabled": True},
-        "task_aware": {"enabled": True},
     },
 }
 

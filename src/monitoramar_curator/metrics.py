@@ -1,11 +1,10 @@
 """Métricas de qualidade do dataset produzido, sem depender de treinamento.
 
-Escopo desta aplicação: produzir o dataset curado. O treinamento do
-YOLO/U-Net com esse dataset é uma etapa posterior e separada. Por isso,
-as métricas aqui medem propriedades do próprio dataset (redução de
-volume, diversidade, cobertura de situações raras, custo estimado de
-anotação) e não desempenho de modelo (mAP/mIoU), que pertence à fase
-seguinte do projeto.
+Escopo desta aplicação: produzir o dataset curado. O treinamento e a
+avaliação de modelos com esse dataset pertencem a uma etapa posterior e
+separada. Por isso, as métricas aqui medem propriedades do próprio dataset
+(redução de volume, diversidade e custo estimado de anotação), e não o
+desempenho de um modelo.
 """
 import numpy as np
 
@@ -52,23 +51,6 @@ def compute_dataset_metrics(manifest_df, stats, minutes_per_frame=2.0):
         metrics["clusters_covered"] = None
         metrics["cluster_diversity_normalized"] = None
 
-    # Cobertura de eventos críticos (task-aware).
-    if has_rows and "selection_reason" in manifest_df.columns:
-        reasons = manifest_df["selection_reason"].fillna("")
-        critical = int(reasons.str.contains("critical_event").sum())
-        metrics["critical_event_frames"] = critical
-        metrics["critical_event_share_pct"] = round(100.0 * critical / len(manifest_df), 2)
-    else:
-        metrics["critical_event_frames"] = 0
-        metrics["critical_event_share_pct"] = None
-
-    # Cobertura de situações raras via contagem de pessoas (se o sinal YOLOv8 estiver ativo).
-    if has_rows and "people_count" in manifest_df.columns and manifest_df["people_count"].notna().any():
-        pc = manifest_df["people_count"].dropna()
-        metrics["people_count_buckets_selected"] = int(pc.nunique())
-    else:
-        metrics["people_count_buckets_selected"] = None
-
     # Custo estimado de anotação (heurística, não depende de treino).
     metrics["estimated_annotation_hours_selected"] = round(selected * minutes_per_frame / 60.0, 2)
     metrics["estimated_annotation_hours_raw"] = round(raw * minutes_per_frame / 60.0, 2) if raw else None
@@ -91,9 +73,6 @@ _REPORT_FIELDS = [
     ("reduction_vs_candidates_pct", "Redução vs. candidatos (%)"),
     ("clusters_covered", "Clusters distintos cobertos"),
     ("cluster_diversity_normalized", "Diversidade normalizada de clusters (0-1)"),
-    ("critical_event_frames", "Frames mantidos por evento crítico"),
-    ("critical_event_share_pct", "Parcela de frames por evento crítico (%)"),
-    ("people_count_buckets_selected", "Nº de contagens distintas de pessoas cobertas"),
     ("estimated_annotation_hours_raw", "Horas de anotação estimadas (bruto)"),
     ("estimated_annotation_hours_selected", "Horas de anotação estimadas (selecionado)"),
     ("estimated_annotation_hours_saved", "Horas de anotação economizadas (estimado)"),

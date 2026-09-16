@@ -21,15 +21,7 @@ Embeddings visuais
 Clustering / diversidade
     │
     ▼
-Análise orientada à tarefa
-    │
-    ├───────────────┐
-    ▼               ▼
-Frames comuns   Frames críticos
-    │               │
-    └───────┬───────┘
-            ▼
-       Dataset final
+Dataset final
             │
             ▼
          Anotação
@@ -72,13 +64,6 @@ pip install -e ".[dinov2]"          # opção A
 pip install -r requirements-dinov2.txt  # opção B
 ```
 
-Para contagem de pessoas via YOLOv8 (sinal task-aware):
-
-```bash
-pip install -e ".[yolo]"            # opção A
-pip install -r requirements-yolo.txt    # opção B
-```
-
 Ou tudo de uma vez:
 
 ```bash
@@ -86,8 +71,8 @@ pip install -e ".[full]"            # opção A
 pip install -r requirements-full.txt    # opção B
 ```
 
-Sem essas dependências, o pipeline continua funcionando com fallback automático
-(embedding de cor/textura no lugar do DINOv2; `people_count=None` no lugar do YOLOv8).
+Sem DINOv2, o pipeline continua funcionando com fallback automático de embedding de
+cor e textura.
 
 ## Execução
 
@@ -98,8 +83,8 @@ monitoramar-curate --input data/raw --output data/curated --config configs/defau
 ```
 
 A saída contém os frames selecionados (`frames/`) e dois manifests em `manifests/`:
-`selections.csv` (metadados por frame: cluster, event_score, people_count, motivo da
-seleção) e `dataset_stats.json` (contagens agregadas por vídeo: frames brutos,
+`selections.csv` (metadados por frame: cluster e motivo da seleção) e
+`dataset_stats.json` (contagens agregadas por vídeo: frames brutos,
 amostrados, candidatos e selecionados).
 
 ### 2. Relatório de qualidade do dataset (sem treino)
@@ -109,8 +94,7 @@ monitoramar-metrics --dataset data/curated --minutes-per-frame 2.0
 ```
 
 Calcula, a partir do manifest e do `dataset_stats.json` já produzidos: percentual de
-redução (vs. bruto/amostrado/candidatos), diversidade normalizada de clusters,
-cobertura de eventos críticos, nº de contagens de pessoas distintas cobertas e
+redução (vs. bruto/amostrado/candidatos), diversidade normalizada de clusters e
 estimativa de horas de anotação economizadas. Essas métricas avaliam o dataset em si;
 o impacto real no treinamento (mAP/mIoU) é avaliado em uma etapa posterior, fora do
 escopo desta aplicação.
@@ -121,15 +105,14 @@ escopo desta aplicação.
 monitoramar-compare --input data/raw --output data/comparison --config configs/default.yaml
 ```
 
-Roda automaticamente os quatro métodos discutidos na proposta sobre o mesmo conjunto de
+Roda automaticamente os três métodos discutidos na proposta sobre o mesmo conjunto de
 vídeos — cada um é apenas uma combinação de flags `enabled` do config:
 
-| Método | redundancy | embedding+clustering | task_aware |
-|---|---|---|---|
-| A — Amostragem fixa | desligado | desligado | desligado |
-| B — Similaridade temporal | ligado | desligado | desligado |
-| C — Diversidade visual | ligado | ligado | desligado |
-| D — Task-aware (proposto) | ligado | ligado | ligado |
+| Método | redundancy | embedding+clustering |
+|---|---|---|
+| A — Amostragem fixa | desligado | desligado |
+| B — Similaridade temporal | ligado | desligado |
+| C — Diversidade visual | ligado | ligado |
 
 Gera uma subpasta por método e uma tabela `comparison.csv` na raiz de saída, com as
 mesmas métricas do item 2 lado a lado.
@@ -141,8 +124,8 @@ monitoramar-review --dataset data/curated
 ```
 
 Gera `data/curated/review/index.html`, uma página local com miniaturas dos frames e
-filtros por cluster, motivo de seleção, score de evento e número de pessoas. Abra o
-arquivo no navegador para revisar a curadoria antes da anotação humana.
+filtros por cluster e motivo de seleção. Abra o arquivo no navegador para revisar a
+curadoria antes da anotação humana.
 
 #### Como usar
 
@@ -168,33 +151,14 @@ arquivo no navegador para revisar a curadoria antes da anotação humana.
 
 A página não precisa de servidor nem de extensão: funciona localmente. Após uma nova
 curadoria, execute novamente `monitoramar-review` para atualizar as miniaturas e os
-motivos. Cada cartão usa etiquetas curtas, como `Mudança visual`, `Representa o grupo`,
-`Cena incomum` ou `Mudança de pessoas (+N)`.
-
-## Task-aware: contagem de pessoas via YOLOv8
-
-Para ativar o sinal que diferencia a curadoria de um dedup genérico (seção 7 da
-proposta), habilite em `configs/default.yaml`:
-
-```yaml
-task_aware:
-  people_counting:
-    enabled: true
-    model: yolov8n.pt   # ou o modelo já treinado/usado em produção no MonitoraMAR
-```
-
-O YOLOv8 é usado apenas para **inferência** sobre os frames candidatos (contar
-banhistas), nunca para treino — o objetivo é usar o modelo já existente como sinal de
-seleção. Se `ultralytics` não estiver instalado, ou a flag estiver desligada,
-`people_count` fica `None` e o `event_score` passa a depender só da novidade de
-embedding (comportamento anterior, sem quebrar o pipeline).
+motivos. Cada cartão usa etiquetas curtas, como `Amostragem fixa`, `Mudança visual` e
+`Representa o grupo`.
 
 ## Princípios
 
 - Não descartar automaticamente frames visualmente semelhantes.
-- Preservar transições, casos raros e situações críticas.
+- Preservar transições e variedade visual.
 - Manter rastreabilidade por vídeo, timestamp, cluster e motivo.
 - Não usar frames quase idênticos em treino e teste.
-- Inferências YOLO/U-Net são sinais de curadoria, não ground truth.
 - Treinamento e avaliação downstream (mAP/mIoU) ficam fora do escopo desta aplicação;
   aqui o objetivo é produzir e medir a qualidade do dataset curado.

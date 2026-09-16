@@ -8,29 +8,24 @@ from tqdm import tqdm
 
 from .clustering import cluster_embeddings, representative_indices
 from .embeddings import create_backend
-from .models import FrameRecord
-from .people import create_people_counter
+from .models import FrameRecord, add_reason
 from .redundancy import TemporalRedundancyFilter
-from .task_aware import add_reason, compute_event_scores
 from .video import get_video_info, sample_video
 
 
 def _truncate_by_priority(candidate_idx, records, reps, max_frames):
     """Mantém a ordem cronológica quando cabe no orçamento. Quando é preciso
-    cortar, prioriza representantes de cluster e frames de evento crítico
-    (maior event_score) em vez de simplesmente cortar pela ordem do índice.
+    cortar, prioriza representantes de cluster em vez de simplesmente cortar
+    pela ordem do índice.
     Se não houver nenhum sinal de prioridade (ex.: métodos-baseline sem
-    clustering/task-aware), usa amostragem por passo uniforme em vez de
+    clustering), usa amostragem por passo uniforme em vez de
     manter só o início cronológico do vídeo.
     """
     ordered = sorted(candidate_idx, key=lambda i: records[i].frame_index)
     if len(ordered) <= max_frames:
         return ordered
 
-    def priority(i):
-        return max(1.0 if i in reps else 0.0, records[i].event_score)
-
-    priorities = {i: priority(i) for i in ordered}
+    priorities = {i: 1.0 if i in reps else 0.0 for i in ordered}
     if len(set(priorities.values())) <= 1:
         stride = len(ordered) / max_frames
         picked = sorted({ordered[int(k * stride)] for k in range(max_frames)})
@@ -85,8 +80,6 @@ def curate_video(video_path, output_dir, config):
 
     embedding_cfg = config.get("embedding", {})
     clustering_cfg = config.get("clustering", {})
-    task_aware_cfg = config.get("task_aware", {})
-
     reps = set()
     if embedding_cfg.get("enabled", True) and clustering_cfg.get("enabled", True):
         backend = create_backend(embedding_cfg)
@@ -106,21 +99,7 @@ def curate_video(video_path, output_dir, config):
         reps = set(representative_indices(
             emb, labels, config["selection"].get("representatives_per_cluster", 1)))
 
-    if task_aware_cfg.get("enabled", True):
-        people_counter = create_people_counter(task_aware_cfg.get("people_counting", {}))
-        people_counts = people_counter.count(images)
-        for r, c in zip(records, people_counts):
-            r.people_count = c
-        compute_event_scores(records,
-            task_aware_cfg["criticality"]["novelty"],
-            task_aware_cfg["criticality"]["people_count_change"])
-
     selected = set(reps)
-    if task_aware_cfg.get("enabled", True) and config["selection"].get("always_keep_events", True):
-        threshold = task_aware_cfg["min_event_score"]
-        for i, r in enumerate(records):
-            if r.event_score >= threshold:
-                selected.add(i)
 
     if not selected:
         # Nenhum critério estruturado de seleção ativo (ex.: métodos-baseline
@@ -135,8 +114,6 @@ def curate_video(video_path, output_dir, config):
         r = records[i]
         if i in reps:
             add_reason(r, "cluster_representative")
-        if task_aware_cfg.get("enabled", True) and r.event_score >= task_aware_cfg["min_event_score"]:
-            add_reason(r, "critical_event")
         out = frame_dir / f"{r.video_id}_f{r.frame_index:08d}.jpg"
         cv2.imwrite(str(out), images[i], [cv2.IMWRITE_JPEG_QUALITY, config["output"]["jpeg_quality"]])
         r.output_path = str(out)

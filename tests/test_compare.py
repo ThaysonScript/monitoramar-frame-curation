@@ -1,4 +1,5 @@
-from monitoramar_curator.compare import _merge, METHOD_OVERRIDES
+from monitoramar_curator.compare import METHOD_OVERRIDES, _merge
+
 
 def test_merge_overrides_nested_keys_only():
     base = {"redundancy": {"enabled": True, "threshold": 8}, "sampling": {"target_fps": 2.0}}
@@ -11,12 +12,11 @@ def test_merge_overrides_nested_keys_only():
 
 def test_all_methods_defined_and_progressive():
     assert set(METHOD_OVERRIDES.keys()) == {
-        "A_fixed_sampling", "B_temporal_similarity", "C_visual_diversity", "D_task_aware"
+        "A_fixed_sampling", "B_temporal_similarity", "C_visual_diversity"
     }
     # cada método deve ligar estritamente mais estágios que o anterior
-    a, b, c, d = (METHOD_OVERRIDES[k] for k in
-                  ["A_fixed_sampling", "B_temporal_similarity", "C_visual_diversity", "D_task_aware"])
+    a, b, c = (METHOD_OVERRIDES[k] for k in
+               ["A_fixed_sampling", "B_temporal_similarity", "C_visual_diversity"])
     assert a["redundancy"]["enabled"] is False
     assert b["redundancy"]["enabled"] is True and b["clustering"]["enabled"] is False
-    assert c["clustering"]["enabled"] is True and c["task_aware"]["enabled"] is False
-    assert d["task_aware"]["enabled"] is True
+    assert c["embedding"]["enabled"] is True and c["clustering"]["enabled"] is True
