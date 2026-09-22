@@ -1,6 +1,6 @@
 import pandas as pd
 
-from monitoramar_curator.review import build_review
+from monitoramar_curator.review import build_review, delete_frame
 
 
 def test_build_review_creates_local_page(tmp_path):
@@ -24,3 +24,19 @@ def test_build_review_creates_local_page(tmp_path):
     text = page.read_text(encoding="utf-8")
     assert "../frames/frame.jpg" in text.replace("\\", "/")
     assert "Representa o grupo" in text
+
+
+def test_delete_frame_removes_image_and_manifest_row(tmp_path):
+    dataset = tmp_path / "curated"
+    frames = dataset / "frames"
+    manifest_dir = dataset / "manifests"
+    frames.mkdir(parents=True)
+    manifest_dir.mkdir()
+    image = frames / "frame.jpg"
+    image.write_bytes(b"placeholder")
+    pd.DataFrame([{"output_path": str(image), "video_id": "video-a"}]).to_csv(
+        manifest_dir / "selections.csv", index=False)
+
+    assert delete_frame(dataset, "frame.jpg") == 0
+    assert not image.exists()
+    assert pd.read_csv(manifest_dir / "selections.csv").empty

@@ -154,6 +154,16 @@ curadoria, execute novamente `monitoramar-review` para atualizar as miniaturas e
 motivos. Cada cartão usa etiquetas curtas, como `Amostragem fixa`, `Mudança visual` e
 `Representa o grupo`.
 
+Para revisar e excluir manualmente um frame inadequado, inicie a revisão em modo
+interativo e abra o endereço exibido (normalmente `http://127.0.0.1:8765`):
+
+```bash
+monitoramar-review --dataset data/curated --serve
+```
+
+O botão **Excluir frame** pede confirmação e remove o JPG e sua linha do
+`selections.csv`. O modo sem `--serve` continua sendo apenas leitura.
+
 ## Princípios
 
 - Não descartar automaticamente frames visualmente semelhantes.
